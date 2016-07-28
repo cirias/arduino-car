@@ -12,34 +12,32 @@ const byte pinRight1 = 9;
 const byte pinRight2 = 10;
 const byte pinRightPWM = 11;
 
-// other constants
+// defaults
 const double dDelay = 200;
-const byte countSum = 40;
-const byte countGap = 20;
+const byte countStep = 20;
+const int defaultPWM = 50;
+const double defaultSpeed = 50;
 
 // global variables
-double leftPWM = 0;
-double rightPWM = 0;
 int lCounter = 0;
 int rCounter = 0;
-double lSpeed = 0;
-double rSpeed = 0;
 unsigned long lastLTime = 0;
 unsigned long lastRTime = 0;
-
+double lSpeed = 0;
+double rSpeed = 0;
+double leftPWM = 0;
+double rightPWM = 0;
 double lrSetpoint, speedSetpoint, speedDiff, speedAvg, lrPWMAdj, speedPWMAdj;
-
 PID lrPID(&speedDiff, &lrPWMAdj, &lrSetpoint, 0.23, 0.00, 0.04, DIRECT);
-
 PID speedPID(&speedAvg, &speedPWMAdj, &speedSetpoint, 0.1, 0, 0, DIRECT);
 
 void lCount() {
   lCounter++;
 
   // compute speed
-  if (lCounter % countGap == 0) {
+  if (lCounter % countStep == 0) {
     unsigned long now = millis();
-    lSpeed = 1000 * countGap / (now - lastLTime);
+    lSpeed = countStep * 1000 / double(now - lastLTime);
     /* Serial.println(now - lastLTime); */
     /* Serial.println(lSpeed); */
     lastLTime = now;
@@ -50,37 +48,39 @@ void rCount() {
   rCounter++;
 
   // compute speed
-  if (rCounter % countGap == 0) {
+  if (rCounter % countStep == 0) {
     unsigned long now = millis();
-    rSpeed = 1000 * countGap / (now - lastRTime);
+    rSpeed = countStep * 1000 / double(now - lastRTime);
     /* Serial.println(now - lastRTime); */
     /* Serial.println(rSpeed); */
     lastRTime = now;
   }
 }
 
-void computeSpeed() {
+void computePIDInput() {
   speedDiff = lSpeed - rSpeed;
   speedAvg = (lSpeed + rSpeed) / 2;
 }
 
 void reset() {
-  leftPWM = 50;
-  rightPWM = 50;
   lCounter = 0;
   rCounter = 0;
   lastLTime = millis();
   lastRTime = millis();
+  leftPWM = defaultPWM;
+  rightPWM = defaultPWM;
 
   lrSetpoint = 0;
   lrPID.SetMode(MANUAL);
   lrPID.SetMode(AUTOMATIC);
+
+  speedSetpoint = defaultSpeed;
   speedPID.SetMode(MANUAL);
   speedPID.SetMode(AUTOMATIC);
 }
 
-void run() {
-  computeSpeed();
+void updatePWM() {
+  computePIDInput();
   Serial.print(speedDiff);
   Serial.print(" ");
   Serial.print(speedAvg);
@@ -113,7 +113,7 @@ void forward() {
   digitalWrite(pinRight1, HIGH);
   digitalWrite(pinRight2, LOW);
 
-  run();
+  updatePWM();
 }
 
 void backward() {
@@ -122,7 +122,7 @@ void backward() {
   digitalWrite(pinRight1, LOW);
   digitalWrite(pinRight2, HIGH);
 
-  run();
+  updatePWM();
 }
 
 void stop() {
@@ -158,17 +158,13 @@ void setup() {
   analogWrite(pinLeftPWM, leftPWM);
   analogWrite(pinRightPWM, rightPWM);
 
-  leftPWM = 50;
-  rightPWM = 50;
-
-  speedSetpoint = 50;
 
   //turn the PID on
-  lrPID.SetOutputLimits(-10, 10);
+  lrPID.SetOutputLimits(-255, 255);
   lrPID.SetMode(AUTOMATIC);
   lrPID.SetSampleTime(dDelay);
 
-  speedPID.SetOutputLimits(-10, 10);
+  speedPID.SetOutputLimits(-255, 255);
   speedPID.SetMode(AUTOMATIC);
   speedPID.SetSampleTime(dDelay);
 
@@ -176,12 +172,7 @@ void setup() {
   reset();
 }
 
-//void loop() {
-//}
-
 void loop() {
-  /* forward(); */
-
   int outA0 = digitalRead(A0);
   int outA1 = digitalRead(A1);
 
