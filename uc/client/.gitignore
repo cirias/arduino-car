@@ -1,0 +1,9 @@
+node_modules
+
+*.log
+
+build/*
+!build/index.html
+
+dist/*
+!dist/index.html

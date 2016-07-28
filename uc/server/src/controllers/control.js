@@ -5,12 +5,13 @@ const client = dgram.createSocket('udp4');
 
 export default {
   get(req, res, next) {
-    client.send(req.params.motion, config.remote.port, config.remote.host, (err) => {
+    client.send(req.params.motion, config.remote.port, config.remote.host, err => {
       if (err) {
         return next(err);
       }
 
-      return res.send(`Hello ${req.params.name}`);
+      console.log(`send ${req.params.motion}`);
+      return res.send('ok');
     });
   },
 };

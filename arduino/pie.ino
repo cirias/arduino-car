@@ -125,6 +125,24 @@ void backward() {
   updatePWM();
 }
 
+void turnLeft() {
+  digitalWrite(pinLeft1, LOW);
+  digitalWrite(pinLeft2, HIGH);
+  digitalWrite(pinRight1, HIGH);
+  digitalWrite(pinRight2, LOW);
+
+  updatePWM();
+}
+
+void turnRight() {
+  digitalWrite(pinLeft1, HIGH);
+  digitalWrite(pinLeft2, LOW);
+  digitalWrite(pinRight1, LOW);
+  digitalWrite(pinRight2, HIGH);
+
+  updatePWM();
+}
+
 void stop() {
   digitalWrite(pinLeft1, LOW);
   digitalWrite(pinLeft2, LOW);
@@ -175,12 +193,18 @@ void setup() {
 void loop() {
   int outA0 = digitalRead(A0);
   int outA1 = digitalRead(A1);
+  int outA2 = digitalRead(A2);
+  int outA3 = digitalRead(A3);
 
   // forward
-  if (outA0 == HIGH && outA1 == LOW) {
+  if (outA0 == HIGH && outA1 == LOW && outA2 == LOW && outA3 == LOW) {
     forward();
-  } else if (outA0 == LOW && outA1 == HIGH) {
+  } else if (outA0 == LOW && outA1 == HIGH && outA2 == LOW && outA3 == LOW) {
     backward();
+  } else if (outA0 == LOW && outA1 == LOW && outA2 == HIGH && outA3 == LOW) {
+    turnLeft();
+  } else if (outA0 == LOW && outA1 == LOW && outA2 == LOW && outA3 == HIGH) {
+    turnRight();
   } else {
     stop();
     reset();
