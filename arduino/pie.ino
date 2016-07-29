@@ -15,7 +15,7 @@ const byte pinRightPWM = 11;
 // defaults
 const double dDelay = 200;
 const byte countStep = 20;
-const int defaultPWM = 50;
+const int defaultPWM = 70;
 const double defaultSpeed = 50;
 
 // global variables
@@ -25,11 +25,13 @@ unsigned long lastLTime = 0;
 unsigned long lastRTime = 0;
 double lSpeed = 0;
 double rSpeed = 0;
-double leftPWM = 0;
-double rightPWM = 0;
+double lrPWMAdjSum = 0;
+double speedPWMAdjSum = 0;
+int leftPWM = 0;
+int rightPWM = 0;
 double lrSetpoint, speedSetpoint, speedDiff, speedAvg, lrPWMAdj, speedPWMAdj;
 PID lrPID(&speedDiff, &lrPWMAdj, &lrSetpoint, 0.23, 0.00, 0.04, DIRECT);
-PID speedPID(&speedAvg, &speedPWMAdj, &speedSetpoint, 0.1, 0, 0, DIRECT);
+PID speedPID(&speedAvg, &speedPWMAdj, &speedSetpoint, 0.05, 0, 0, DIRECT);
 
 void lCount() {
   lCounter++;
@@ -88,16 +90,18 @@ void updatePWM() {
   lrPID.Compute();
   Serial.print(" ");
   Serial.print(lrPWMAdj);
+  lrPWMAdjSum += lrPWMAdj;
 
   speedPID.Compute();
   Serial.print(" ");
   Serial.print(speedPWMAdj);
+  speedPWMAdjSum += speedPWMAdj;
 
-  leftPWM = constrain(int(leftPWM)+int(lrPWMAdj)+int(speedPWMAdj), 0, 255);
+  leftPWM = constrain(defaultPWM+int(lrPWMAdjSum)+int(speedPWMAdjSum), 0, 255);
   Serial.print(" ");
   Serial.print(leftPWM);
 
-  rightPWM = constrain(int(rightPWM)-int(lrPWMAdj)+int(speedPWMAdj), 0, 255);
+  rightPWM = constrain(defaultPWM-int(lrPWMAdjSum)+int(speedPWMAdjSum), 0, 255);
   Serial.print(" ");
   Serial.println(rightPWM);
 
