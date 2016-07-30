@@ -1,0 +1,111 @@
+*:not(input):not(textarea) {
+  -webkit-user-select: none; /* disable selection/Copy of UIWebView */
+  -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
+}
+
+.dashboard {
+  width: 800px;
+  margin: 0 auto;
+}
+
+.motion {
+  margin-top: 25%;
+  text-align: center;
+}
+
+.control {
+  margin-top: 30%;
+  text-align: center;
+}
+
+.large-text {
+  font-size: 30em;
+}
+
+.medium-text {
+  font-size: 15em;
+}
+
+.placeholder-btn {
+  color: white;
+}
+
+.forward-btn {
+  -webkit-transform: rotate(-90deg);
+}
+
+.backward-btn {
+  -webkit-transform: rotate(90deg);
+}
+
+.left-btn {
+  -webkit-transform: rotate(-180deg) translateX(70%);
+}
+
+.right-btn {
+  -webkit-transform: rotate(0deg) translateX(70%);
+}
+
+.forward-btn-big {
+  -webkit-transform: rotate(-90deg) scale(1.2, 1.2);
+}
+
+.backward-btn-big {
+  -webkit-transform: rotate(90deg) scale(1.2, 1.2);
+}
+
+.left-btn-big {
+  -webkit-transform: rotate(-180deg) translateX(70%) scale(1.2, 1.2);
+}
+
+.right-btn-big {
+  -webkit-transform: rotate(0deg) translateX(70%) scale(1.2, 1.2);
+}
+
+.forward {
+  animation-name: upward;
+  animation-timing-function: linear;
+  animation-duration: .50s;
+  animation-iteration-count: infinite;
+}
+
+.backward {
+  animation-name: downward;
+  animation-timing-function: linear;
+  animation-duration: .50s;
+  animation-iteration-count: infinite;
+}
+
+.left {
+  animation-name: counterclockwise;
+  animation-timing-function: linear;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+}
+
+.right {
+  animation-name: clockwise;
+  animation-timing-function: linear;
+  animation-duration: 1.5s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes upward {
+    0%   {-webkit-transform: translateY(25);}
+    100% {-webkit-transform: translateY(-25%);}
+}
+
+@keyframes downward {
+    0%   {-webkit-transform: translateY(-25);}
+    100% {-webkit-transform: translateY(25%);}
+}
+
+@keyframes clockwise {
+    0%   {-webkit-transform: rotate(0);}
+    100% {-webkit-transform: rotate(360deg);}
+}
+
+@keyframes counterclockwise {
+    0%   {-webkit-transform: rotate(0);}
+    100% {-webkit-transform: rotate(-360deg);}
+}

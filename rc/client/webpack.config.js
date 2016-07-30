@@ -17,7 +17,7 @@ var config = {
       test: /\.css$/,
       loader: 'style!css'
     }, {
-      test: /\.(png|jpg)$/,
+      test: /\.(png|jpg|svg|ttf|woff|woff2|eot)(\?.*$|$)/,
       loader: 'url?limit=25000'
     }],
   }

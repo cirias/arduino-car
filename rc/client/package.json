@@ -1,8 +1,9 @@
 {
-  "name": "react-webpack-template",
+  "name": "rc-client",
   "version": "0.0.0",
   "description": "",
   "dependencies": {
+    "font-awesome": "^4.6.3",
     "jquery": "^3.1.0",
     "react": "^15.2.1",
     "react-dom": "^15.2.1"
@@ -22,7 +23,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "server": "webpack-dev-server --colors --inline --hot --content-base build"
+    "server": "webpack-dev-server --colors --inline --hot --host 0.0.0.0 --content-base build"
   },
   "author": "",
   "license": "ISC"
