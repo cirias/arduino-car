@@ -14,49 +14,47 @@ const byte pinRightPWM = 11;
 
 // defaults
 const double dDelay = 200;
-const byte countStep = 20;
-const int defaultPWM = 70;
+const byte countStep = 40;
+const int defaultPWM = 60;
 const double defaultSpeed = 50;
 
 // global variables
 int lCounter = 0;
 int rCounter = 0;
-unsigned long lastLTime = 0;
-unsigned long lastRTime = 0;
-double lSpeed = 0;
-double rSpeed = 0;
+unsigned long lTimePoints[countStep] = {0};
+unsigned long rTimePoints[countStep] = {0};
+double lSpeed;
+double rSpeed;
 double lrPWMAdjSum = 0;
 double speedPWMAdjSum = 0;
 int leftPWM = 0;
 int rightPWM = 0;
 double lrSetpoint, speedSetpoint, speedDiff, speedAvg, lrPWMAdj, speedPWMAdj;
-PID lrPID(&speedDiff, &lrPWMAdj, &lrSetpoint, 0.23, 0.00, 0.04, DIRECT);
+PID lrPID(&speedDiff, &lrPWMAdj, &lrSetpoint, 0.025, 0.00, 0.00, DIRECT);
 PID speedPID(&speedAvg, &speedPWMAdj, &speedSetpoint, 0.05, 0, 0, DIRECT);
 
 void lCount() {
-  lCounter++;
-
-  // compute speed
-  if (lCounter % countStep == 0) {
-    unsigned long now = millis();
-    lSpeed = countStep * 1000 / double(now - lastLTime);
-    /* Serial.println(now - lastLTime); */
-    /* Serial.println(lSpeed); */
-    lastLTime = now;
+  unsigned long now = millis();
+  lTimePoints[lCounter % countStep] = now;
+  unsigned long last = lTimePoints[(lCounter+1) % countStep];
+  if (last != 0) {
+    lSpeed = countStep * (1000 / double(now - last));
   }
+  /* Serial.println(lSpeed); */
+
+  lCounter++;
 }
 
 void rCount() {
-  rCounter++;
-
-  // compute speed
-  if (rCounter % countStep == 0) {
-    unsigned long now = millis();
-    rSpeed = countStep * 1000 / double(now - lastRTime);
-    /* Serial.println(now - lastRTime); */
-    /* Serial.println(rSpeed); */
-    lastRTime = now;
+  unsigned long now = millis();
+  rTimePoints[rCounter % countStep] = now;
+  unsigned long last = rTimePoints[(rCounter+1) % countStep];
+  if (last != 0) {
+    rSpeed = countStep * (1000 / double(now - last));
   }
+  /* Serial.println(rSpeed); */
+
+  rCounter++;
 }
 
 void computePIDInput() {
@@ -67,10 +65,16 @@ void computePIDInput() {
 void reset() {
   lCounter = 0;
   rCounter = 0;
-  lastLTime = millis();
-  lastRTime = millis();
   leftPWM = defaultPWM;
   rightPWM = defaultPWM;
+  lSpeed = defaultSpeed;
+  rSpeed = defaultSpeed;
+  for (int i = 0; i < countStep; i++) {
+    lTimePoints[i] = 0;
+  }
+  for (int i = 0; i < countStep; i++) {
+    rTimePoints[i] = 0;
+  }
 
   lrSetpoint = 0;
   lrPID.SetMode(MANUAL);
@@ -84,13 +88,17 @@ void reset() {
 void updatePWM() {
   computePIDInput();
   Serial.print(speedDiff);
-  Serial.print(" ");
-  Serial.print(speedAvg);
+  /*
+   * Serial.print(" ");
+   * Serial.print(speedAvg);
+   */
 
   lrPID.Compute();
   Serial.print(" ");
   Serial.print(lrPWMAdj);
   lrPWMAdjSum += lrPWMAdj;
+  Serial.print(" ");
+  Serial.print(lrPWMAdjSum);
 
   speedPID.Compute();
   Serial.print(" ");
@@ -156,7 +164,7 @@ void stop() {
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("diff adj left right");
+  Serial.println("diff adj adjsum left right");
   
   // put your setup code here, to run once:
   pinMode(pinStandby, OUTPUT);
